@@ -3,4 +3,4 @@ __pycache__/
 alembic/versions/*
 venv
 migrations/versions/*
-.vscode
+.vscode/*

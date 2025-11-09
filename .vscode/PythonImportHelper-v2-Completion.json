@@ -3543,6 +3543,14 @@
         "documentation": {}
     },
     {
+        "label": "field_validator",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
         "label": "BaseModel",
         "importPath": "pydantic",
         "description": "pydantic",
@@ -4864,7 +4872,7 @@
         "kind": 6,
         "importPath": "schemas.categoria_schema",
         "description": "schemas.categoria_schema",
-        "peekOfCode": "class CategoriaSchema(BaseModel):\n    nome: str\n    tipo_categoria: TipoCategoria\n    modelo_categoria: TipoMovimentacao\n    valor_categoria: Optional[Decimal] = None\n    nome_icone: str\n    ativo : Optional[bool] = True\n    model_config = ConfigDict(from_attributes=True)\nclass CategoriaSchemaUpdate(BaseModel):\n    nome: Optional[str] = None",
+        "peekOfCode": "class CategoriaSchema(BaseModel):\n    nome: str\n    tipo_categoria: TipoCategoria\n    modelo_categoria: TipoMovimentacao\n    valor_categoria: Optional[Decimal] = None\n    nome_icone: str\n    ativo : Optional[bool] = True\n    model_config = ConfigDict(from_attributes=True)\n    @field_validator(\"valor_categoria\", mode=\"before\")\n    def handle_empty_string(cls, value):",
         "detail": "schemas.categoria_schema",
         "documentation": {}
     },
@@ -4873,7 +4881,7 @@
         "kind": 6,
         "importPath": "schemas.categoria_schema",
         "description": "schemas.categoria_schema",
-        "peekOfCode": "class CategoriaSchemaUpdate(BaseModel):\n    nome: Optional[str] = None\n    tipo_categoria: Optional[TipoCategoria] = None\n    modelo_categoria: Optional[TipoMovimentacao] = None\n    valor_categoria: Optional[Decimal] = None\n    nome_icone: Optional[str] = None\n    ativo : Optional[bool] = True\nclass CategoriaSchemaId(CategoriaSchema):\n    id_usuario: int\n    id_categoria: int",
+        "peekOfCode": "class CategoriaSchemaUpdate(BaseModel):\n    nome: Optional[str] = None\n    tipo_categoria: Optional[TipoCategoria] = None\n    modelo_categoria: Optional[TipoMovimentacao] = None\n    valor_categoria: Optional[Decimal] = None\n    nome_icone: Optional[str] = None\n    ativo : Optional[bool] = True\n    @field_validator(\"valor_categoria\", mode=\"before\")\n    def handle_empty_string(cls, value):\n        if value == \"\":",
         "detail": "schemas.categoria_schema",
         "documentation": {}
     },
@@ -4882,7 +4890,7 @@
         "kind": 6,
         "importPath": "schemas.categoria_schema",
         "description": "schemas.categoria_schema",
-        "peekOfCode": "class CategoriaSchemaId(CategoriaSchema):\n    id_usuario: int\n    id_categoria: int\n    valor_categoria: Optional[Decimal] = None",
+        "peekOfCode": "class CategoriaSchemaId(CategoriaSchema):\n    id_usuario: int\n    id_categoria: int\n    valor_categoria: Optional[Decimal] = None\n    @field_validator(\"valor_categoria\", mode=\"before\")\n    def handle_empty_string(cls, value):\n        if value == \"\":\n            return None\n        return value",
         "detail": "schemas.categoria_schema",
         "documentation": {}
     },
@@ -5368,7 +5376,7 @@
         "kind": 2,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "def acquire_file_lock():\n    try:\n        # Criar um arquivo temporário no diretório dedicado\n        lock_file = tempfile.NamedTemporaryFile(dir=LOCK_DIR, delete=False)\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {lock_file.name}\")\n        return lock_file\n    except IOError as e:\n        logger.info(\"Outro processo já está executando a tarefa.\")\n        return None",
+        "peekOfCode": "def acquire_file_lock():\n    try:\n        # Criar ou abrir um arquivo de lock compartilhado\n        lock_file = open(LOCK_FILE_PATH, 'w')\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {LOCK_FILE_PATH}\")\n        return lock_file\n    except IOError as e:\n        logger.info(f\"Outro processo já está executando a tarefa {e}\")\n        return None",
         "detail": "main",
         "documentation": {}
     },
@@ -5377,7 +5385,7 @@
         "kind": 2,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "def release_file_lock(lock_file):\n    if lock_file:\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)  # Libera o lock\n        lock_file.close()  # Fecha o arquivo\n        os.unlink(lock_file.name)  # Remove o arquivo\n        logger.info(f\"Lock liberado e arquivo removido: {lock_file.name}\")\ndef executar_funcao_assincrona(loop):\n    lock_file = acquire_file_lock()  # Caminho do arquivo de lock\n    if lock_file:\n        try:",
+        "peekOfCode": "def release_file_lock(lock_file):\n    if lock_file:\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)  # Libera o lock\n        lock_file.close()  # Fecha o arquivo\n        os.unlink(lock_file.name)  # Remove o arquivo\n        logger.info(f\"Lock liberado e arquivo: {LOCK_FILE_PATH} fechado.\")\ndef executar_funcao_assincrona(loop):\n    lock_file = acquire_file_lock()  # Caminho do arquivo de lock\n    if lock_file:\n        try:",
         "detail": "main",
         "documentation": {}
     },
@@ -5386,7 +5394,7 @@
         "kind": 2,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "def executar_funcao_assincrona(loop):\n    lock_file = acquire_file_lock()  # Caminho do arquivo de lock\n    if lock_file:\n        try:\n            asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)\n        finally:\n            release_file_lock(lock_file)\ndef agendar_execucao(hora: int, minuto: int, loop):\n    agora = datetime.now()\n    hora_execucao = agora.replace(hour=hora, minute=minuto, second=0, microsecond=0)",
+        "peekOfCode": "def executar_funcao_assincrona(loop):\n    lock_file = acquire_file_lock()  # Caminho do arquivo de lock\n    if lock_file:\n        try:\n            # asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)\n            future = asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)\n            future.result()  # Aguarda a execução da função\n        finally:\n            release_file_lock(lock_file)\ndef agendar_execucao(hora: int, minuto: int, loop):",
         "detail": "main",
         "documentation": {}
     },
@@ -5404,7 +5412,7 @@
         "kind": 5,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "logger = logging.getLogger(__name__)\nscheduler = BackgroundScheduler()\nLOCK_DIR = \"/tmp/my_lock_dir\"\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(LOCK_DIR, mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar um arquivo temporário no diretório dedicado\n        lock_file = tempfile.NamedTemporaryFile(dir=LOCK_DIR, delete=False)\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)",
+        "peekOfCode": "logger = logging.getLogger(__name__)\nscheduler = BackgroundScheduler()\nLOCK_FILE_PATH = os.path.join(tempfile.gettempdir(), 'shared_lock_file.lock')\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(tempfile.gettempdir(), mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar ou abrir um arquivo de lock compartilhado\n        lock_file = open(LOCK_FILE_PATH, 'w')\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)",
         "detail": "main",
         "documentation": {}
     },
@@ -5413,16 +5421,16 @@
         "kind": 5,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "scheduler = BackgroundScheduler()\nLOCK_DIR = \"/tmp/my_lock_dir\"\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(LOCK_DIR, mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar um arquivo temporário no diretório dedicado\n        lock_file = tempfile.NamedTemporaryFile(dir=LOCK_DIR, delete=False)\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {lock_file.name}\")",
+        "peekOfCode": "scheduler = BackgroundScheduler()\nLOCK_FILE_PATH = os.path.join(tempfile.gettempdir(), 'shared_lock_file.lock')\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(tempfile.gettempdir(), mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar ou abrir um arquivo de lock compartilhado\n        lock_file = open(LOCK_FILE_PATH, 'w')\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {LOCK_FILE_PATH}\")",
         "detail": "main",
         "documentation": {}
     },
     {
-        "label": "LOCK_DIR",
+        "label": "LOCK_FILE_PATH",
         "kind": 5,
         "importPath": "main",
         "description": "main",
-        "peekOfCode": "LOCK_DIR = \"/tmp/my_lock_dir\"\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(LOCK_DIR, mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar um arquivo temporário no diretório dedicado\n        lock_file = tempfile.NamedTemporaryFile(dir=LOCK_DIR, delete=False)\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {lock_file.name}\")\n        return lock_file",
+        "peekOfCode": "LOCK_FILE_PATH = os.path.join(tempfile.gettempdir(), 'shared_lock_file.lock')\n# Garantir que o diretório existe com permissões restritas\nos.makedirs(tempfile.gettempdir(), mode=0o700, exist_ok=True)\ndef acquire_file_lock():\n    try:\n        # Criar ou abrir um arquivo de lock compartilhado\n        lock_file = open(LOCK_FILE_PATH, 'w')\n        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        logger.info(f\"Lock adquirido com sucesso no arquivo: {LOCK_FILE_PATH}\")\n        return lock_file",
         "detail": "main",
         "documentation": {}
     },

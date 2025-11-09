@@ -45,7 +45,10 @@ def executar_funcao_assincrona(loop):
     lock_file = acquire_file_lock()  # Caminho do arquivo de lock
     if lock_file:
         try:
-            asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)
+            # asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)
+            future = asyncio.run_coroutine_threadsafe(check_and_send_email(), loop)
+            future.result()  # Aguarda a execução da função
+            
         finally:
             release_file_lock(lock_file)
 
