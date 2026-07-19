@@ -81,7 +81,8 @@ async def check_and_send_email():
                     MovimentacaoModel.data_pagamento < datetime.now(),
                     MovimentacaoModel.consolidado == False,
                     MovimentacaoModel.id_fatura == None,
-                    MovimentacaoModel.tipoMovimentacao == TipoMovimentacao.DESPESA
+                    MovimentacaoModel.tipoMovimentacao == TipoMovimentacao.DESPESA,
+                    UsuarioModel.receber_emails_diarios == True
                 )
             )
             
@@ -92,7 +93,8 @@ async def check_and_send_email():
                 .where(
                     FaturaModel.data_pagamento == None,
                     FaturaModel.data_vencimento < datetime.now(),
-                    FaturaModel.fatura_gastos > 0
+                    FaturaModel.fatura_gastos > 0,
+                    UsuarioModel.receber_emails_diarios == True
                 )
             )
             
@@ -190,7 +192,7 @@ def processar_usuarios_em_atraso(usuarios_contas, usuarios_faturas):
                 total_atraso += fatura.fatura_gastos
             email_body += "</tbody></table>"
         
-        # Adiciona o resumo
+        # Adiciona o resumof
         email_body += (
             f"<br><h4>Resumo das Pendências:</h4>"
             f"<table style='border-collapse: collapse; width: 100%;'>"

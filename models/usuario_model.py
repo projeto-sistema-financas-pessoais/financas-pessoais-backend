@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, BigInteger, Date
+from sqlalchemy import Column, String, BigInteger, Date, Boolean
 from sqlalchemy.orm import relationship
 from core.configs import settings
 from models.repeticao_model import RepeticaoModel
@@ -10,6 +10,7 @@ class UsuarioModel(settings.DBBaseModel):
     data_nascimento = Column(Date, nullable=False)
     email = Column(String(50), nullable=False, unique=True)
     senha = Column(String(500), nullable=False)
+    receber_emails_diarios = Column(Boolean(), nullable=False, server_default="false")
 
     contas = relationship("ContaModel", cascade= "all, delete-orphan", back_populates="usuario")
     parentes = relationship("ParenteModel", cascade= "all, delete-orphan",back_populates="usuario")

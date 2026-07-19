@@ -223,6 +223,7 @@ async def update_usuario(
         
         usuario.nome_completo = usuario_update.nome_completo
         usuario.data_nascimento = usuario_update.data_nascimento
+        usuario.receber_emails_diarios = usuario_update.receber_emails_diarios
         
         query = await session.execute(select(ParenteModel).filter(
             ParenteModel.id_usuario == usuario_logado.id_usuario,
@@ -268,8 +269,7 @@ async def get_usuario(
     async with db as session:
         usuario = {
             "nome_completo": usuario_logado.nome_completo,
-            "data_nascimento": usuario_logado.data_nascimento
+            "data_nascimento": usuario_logado.data_nascimento,
+            "receber_emails_diarios": usuario_logado.receber_emails_diarios
         }
         return usuario
-
-

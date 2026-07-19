@@ -15,8 +15,7 @@ class LoginDataSchema(BaseModel):
 class UpdateUsuarioSchema(BaseModel):
     nome_completo: Optional[str] = None
     data_nascimento: Optional[date] = None
-
+    receber_emails_diarios: bool
     model_config = ConfigDict(from_attributes=True)
-
 
     
